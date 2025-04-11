@@ -1,5 +1,8 @@
 package model;
 
+import util.ContaException;
+import util.Validador;
+
 public class Conta {
     private final int numeroConta;
     private String titular;
@@ -7,12 +10,13 @@ public class Conta {
 
     private static final double TAXA_SAQUE = 5.0;
 
-    public Conta(int numeroConta, String titular) {
+    public Conta(int numeroConta, String titular) throws ContaException {
+        Validador.validarTitular(titular);
         this.numeroConta = numeroConta;
         this.titular = titular;
     }
 
-    public Conta(int numeroConta, String titular, double depositoInicial) {
+    public Conta(int numeroConta, String titular, double depositoInicial) throws ContaException {
         this(numeroConta, titular);
         depositar(depositoInicial);
     }
@@ -25,26 +29,26 @@ public class Conta {
         return titular;
     }
 
-    public void setTitular(String novoNome) {
-        if (novoNome != null && !novoNome.trim().isEmpty()) {
-            this.titular = novoNome;
-        }
+    public void setTitular(String novoNome) throws ContaException {
+        Validador.validarTitular(novoNome);
+        this.titular = novoNome;
     }
 
     public double getSaldo() {
         return saldo;
     }
 
-    public void depositar(double valor) {
-        if (valor > 0) {
-            saldo += valor;
-        }
+    public void depositar(double valor) throws ContaException {
+        Validador.validarValorPositivo(valor);
+        saldo += valor;
     }
 
-    public void sacar(double valor) {
-        if (valor > 0 && valor + TAXA_SAQUE <= saldo) {
-            saldo -= (valor + TAXA_SAQUE);
+    public void sacar(double valor) throws ContaException {
+        Validador.validarValorPositivo(valor);
+        if ((valor + TAXA_SAQUE) > saldo) {
+            throw new ContaException("Saldo insuficiente para saque com taxa.");
         }
+        saldo -= (valor + TAXA_SAQUE);
     }
 
     @Override
